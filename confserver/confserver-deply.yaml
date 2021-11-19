@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: confserver
+  labels:
+    app: confserver 
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: confserver-container
+  template:
+    metadata:
+      labels:
+        app: confserver-container
+    spec:
+      volumes:
+          - name: persistent-confdb
+            persistentVolumeClaim:
+              claimName: confserver-pv-claim
+          - name: local-bucket
+            persistentVolumeClaim:
+              claimName: confserver-pv-claim2
+      containers:
+      - name: confserver
+        image: curiefense/confserver
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - mountPath: "/config"
+            name: persistent-confdb
+          - mountPath: "/bucket"
+            name: local-bucket
+        env:
+          - name: CURIE_BUCKET_LINK
+            value: ""
+          - name: INIT_GIT_ON_STARTUP
+            value: ""
+          - name: BOOTSTRAP_BUCKET_ON_STARTUP
+            value: "yes"
+          - name: IF_NO_CONFIG_INIT_FROM
+            value: /bootstrap/confdb-initial-data/
+        envFrom:
+          - secretRef: 
+              name: confserver-secret

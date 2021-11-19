@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curielogger
+  labels:
+    app: curielogger 
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: curielogger
+  template:
+    metadata:
+      labels:
+        app: curielogger
+        co.elastic.logs/enabled: "true"
+        co.elastic.logs/json.keys_under_root: "true"
+        co.elastic.logs/json.add_error_key: "true"
+        co.elastic.logs/ignore_decoding_error: "true"
+    spec:
+      containers:
+      - name: curielogger
+        image: curiefense/curielogger
+        ports:
+        - containerPort: 9001
+        - containerPort: 2112
+        env:
+          - name: CURIELOGGER_LOG_LEVEL
+            value: "info"
+          - name: CURIELOGGER_OUTPUTS_STDOUT_ENABLED
+            value: "true"
+          - name: CURIELOGGER_METRICS_PROMETHEUS_ENABLED
+            value: "ture"
+

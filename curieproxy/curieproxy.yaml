@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curieproxy 
+  labels:
+    app: curieproxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cproxy
+  template:
+    metadata:
+      labels:
+        app: cproxy
+    spec:
+        volumes:
+          - name: curieproxy-config
+            persistentVolumeClaim:
+              claimName: proxy-pv-claim 
+        containers:
+          - name: proxy-envoy
+            image: envoyproxy/envoy-dev
+            volumeMounts:
+              - mountPath: "/config"
+                name: curieproxy-config
+            ports:
+            - containerPort: 80
+            - containerPort: 443
+            - containerPort: 8001
+            env: 
+              - name: ENVOY_UID
+                value: ""
+              - name: TARGET_ADDRESS
+                value: echo 
+              - name: TARGET_PORT
+                value: "8080"
+              - name: XFF_TRUSTED_HOPS
+                value: ""
+              - name: ENVOY_LOG_LEVEL
+                value: ""
+            envFrom:
+              - secretRef:
+                  name: proxy-secret
+
+

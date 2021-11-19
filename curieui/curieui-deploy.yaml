@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curiefense-uiserver
+  labels:
+    app: curie-uiserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: curieui
+  template:
+    metadata:
+      labels:
+        app: curieui
+    spec:
+      containers:
+      - name: curieui
+        image: curiefense/uiserver
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        envFrom:
+          - secretRef: 
+              name: ui-secret
+

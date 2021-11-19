@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: credis
+  template:
+    metadata:
+      labels:
+        app: credis
+    spec:
+      volumes:
+        - name: persistent-redis
+          persistentVolumeClaim:
+              claimName: redis-pv-claim
+      containers:
+      - name: redis
+        image: redis
+        volumeMounts:
+          - mountPath: "/data"
+            name: persistent-redis

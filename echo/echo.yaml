@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo
+  labels:
+    app: echo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cecho
+  template:
+    metadata:
+      labels:
+        app: cecho
+    spec:
+      containers:
+      - name: curietasker 
+        image: jmalloc/echo-server
+     

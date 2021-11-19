@@ -1,0 +1,42 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curiesync
+  labels:
+    app: curiesync
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: csync
+  template:
+    metadata:
+      labels:
+        app: csync
+    spec:
+        volumes:
+          - name: local-bucket
+            persistentVolumeClaim:
+              claimName: confserver-pv-claim2
+          - name: curieproxy-config
+            persistentVolumeClaim:
+              claimName: proxy-pv-claim 
+        containers:
+          - name: proxy-envoy
+            image: curiefense/curiesync
+            volumeMounts:
+              - mountPath: "/bucket"
+                name: local-bucket
+              - mountPath: "/config"
+                name: curieproxy-config
+            env: 
+              - name: CURIE_BUCKET_LINK
+                value: ""
+              - name: RUN_MODE
+                value: "PERIODIC_SYNC"
+            envFrom:
+              - secretRef:
+                  name: confserver-secret
+
+
